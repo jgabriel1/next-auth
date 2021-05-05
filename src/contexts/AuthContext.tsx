@@ -1,5 +1,11 @@
-import { createContext, FunctionComponent, useContext, useState } from 'react';
-import { setCookie } from 'nookies';
+import {
+  createContext,
+  FunctionComponent,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { setCookie, parseCookies } from 'nookies';
 import { useRouter } from 'next/router';
 import { api } from '../services/api';
 
@@ -45,12 +51,12 @@ export const AuthProvider: FunctionComponent = ({ children }) => {
 
       const { permissions, roles, token, refreshToken } = data;
 
-      setCookie(undefined, '@NextAuth:token', token, {
+      setCookie(undefined, '@nextauth:token', token, {
         maxAge: 60 * 60 * 24 * 30, // 30 days
         path: '/',
       });
 
-      setCookie(undefined, '@NextAuth:refreshToken', refreshToken, {
+      setCookie(undefined, '@nextauth:refreshToken', refreshToken, {
         maxAge: 60 * 60 * 24 * 30, // 30 days
         path: '/',
       });
@@ -62,6 +68,21 @@ export const AuthProvider: FunctionComponent = ({ children }) => {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    const {
+      '@nextauth:token': token,
+      '@nextauth:refreshToken': refreshToken,
+    } = parseCookies();
+
+    if (token) {
+      api.get<User>('me').then(r => {
+        const { email, permissions, roles } = r.data;
+
+        setUser({ email, permissions, roles });
+      });
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
