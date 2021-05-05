@@ -1,4 +1,17 @@
-import { createContext, FunctionComponent, useContext } from 'react';
+import { createContext, FunctionComponent, useContext, useState } from 'react';
+import { useRouter } from 'next/router';
+import { api } from '../services/api';
+
+type SessionsResponse = {
+  permissions: string[];
+  roles: string[];
+};
+
+type User = {
+  email: string;
+  permissions: string[];
+  roles: string[];
+};
 
 type SignInCredentials = {
   email: string;
@@ -8,18 +21,33 @@ type SignInCredentials = {
 type AuthContextData = {
   signIn: (credentials: SignInCredentials) => Promise<void>;
   isAuthenticated: boolean;
+  user: User;
 };
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: FunctionComponent = ({ children }) => {
-  const isAuthenticated = false;
+  const router = useRouter();
+
+  const [user, setUser] = useState<User | null>(null);
+
+  const isAuthenticated = !!user;
 
   const signIn = async ({ email, password }: SignInCredentials) => {
-    console.log({
-      email,
-      password,
-    });
+    try {
+      const { data } = await api.post<SessionsResponse>('sessions', {
+        email,
+        password,
+      });
+
+      const { permissions, roles } = data;
+
+      setUser({ email, permissions, roles });
+
+      router.push('/dashboard');
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -27,6 +55,7 @@ export const AuthProvider: FunctionComponent = ({ children }) => {
       value={{
         signIn,
         isAuthenticated,
+        user,
       }}
     >
       {children}

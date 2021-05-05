@@ -1,8 +1,12 @@
 import { FormEvent, useState } from 'react';
 
+import { useAuth } from '../contexts/AuthContext';
+
 import styles from '../styles/Home.module.css';
 
 export default function Home() {
+  const { signIn } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -11,7 +15,7 @@ export default function Home() {
 
     const data = { email, password };
 
-    console.log(data);
+    signIn(data);
   };
 
   return (
