@@ -63,6 +63,8 @@ export const AuthProvider: FunctionComponent = ({ children }) => {
 
       setUser({ email, permissions, roles });
 
+      api.defaults.headers['Authorization'] = `Bearer ${token}`;
+
       router.push('/dashboard');
     } catch (err) {
       console.error(err);
