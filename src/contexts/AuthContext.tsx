@@ -1,10 +1,13 @@
 import { createContext, FunctionComponent, useContext, useState } from 'react';
+import { setCookie } from 'nookies';
 import { useRouter } from 'next/router';
 import { api } from '../services/api';
 
 type SessionsResponse = {
   permissions: string[];
   roles: string[];
+  token: string;
+  refreshToken: string;
 };
 
 type User = {
@@ -40,7 +43,17 @@ export const AuthProvider: FunctionComponent = ({ children }) => {
         password,
       });
 
-      const { permissions, roles } = data;
+      const { permissions, roles, token, refreshToken } = data;
+
+      setCookie(undefined, '@NextAuth:token', token, {
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        path: '/',
+      });
+
+      setCookie(undefined, '@NextAuth:refreshToken', refreshToken, {
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        path: '/',
+      });
 
       setUser({ email, permissions, roles });
 
