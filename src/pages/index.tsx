@@ -1,6 +1,7 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 import { useAuth } from '../contexts/AuthContext';
+import { api } from '../services/api';
 
 import styles from '../styles/Home.module.css';
 
@@ -17,6 +18,10 @@ export default function Home() {
 
     signIn(data);
   };
+
+  useEffect(() => {
+    api.get('me').then(console.log);
+  }, []);
 
   return (
     <form className={styles.container} onSubmit={handleSubmit}>
