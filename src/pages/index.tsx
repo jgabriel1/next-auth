@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 
 import styles from '../styles/Home.module.css';
+import { withSSRGuest } from '../utils/withSSRGuest';
 
 export default function Home() {
   const { signIn } = useAuth();
@@ -44,19 +45,10 @@ export default function Home() {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ctx => {
-  const cookies = parseCookies(ctx);
-
-  if (cookies.hasOwnProperty('@nextauth:token')) {
+export const getServerSideProps: GetServerSideProps = withSSRGuest(
+  async ctx => {
     return {
-      redirect: {
-        destination: '/dashboard',
-        permanent: false,
-      },
+      props: {},
     };
   }
-
-  return {
-    props: {},
-  };
-};
+);
