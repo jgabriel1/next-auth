@@ -22,10 +22,6 @@ export default function Home() {
     signIn(data);
   };
 
-  useEffect(() => {
-    api.get('me').then(console.log);
-  }, []);
-
   return (
     <form className={styles.container} onSubmit={handleSubmit}>
       <input
